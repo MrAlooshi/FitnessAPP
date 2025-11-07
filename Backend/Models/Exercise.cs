@@ -5,28 +5,27 @@ namespace Backend.Models
     public class Exercise
     {
         [Key]
-        public string Id { get; set; } = string.Empty; // UUID som string
+        public int id { get; set; }
 
         [Required]
-        public string Name { get; set; } = string.Empty; // Fx "Bænkpres", "Squat"
+        public string name { get; set; } = string.Empty; // Fx "Bænkpres", "Squat"
 
         // Beskrivelse af, hvordan øvelsen udføres
-        public string? Description { get; set; } 
+        public string? description { get; set; } 
 
         [Required]
         [ForeignKey("MuscleGroup")]
-        public string MuscleGroupId { get; set; } = string.Empty;
-        // Navigation property til muskelgruppen
-        // En øvelse har et primært fokus på én muskelgruppe
-        public MuscleGroup? MuscleGroup { get; set; }
+        public int muscleGroupId { get; set; }
+      
+       
+        public MuscleGroup? muscleGroup { get; set; }   // Navigation property til muskelgruppen
 
-        // Disse er vigtige, så app'en ved, om den skal downloade
-        // nye/opdaterede øvelser fra serveren.
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public bool IsDeleted { get; set; }
+       
+        public DateTime createdAt { get; set; }
+        public DateTime updatedAt { get; set; } //Ved ikke hvis de er nødvendige, men doesnt hurt
+        public bool isDeleted { get; set; }
 
         // En øvelse kan være i MANGE programmer
-        public List<ProgramExercise> ProgramExercises { get; set; } = [];
+        public List<ProgramExercise> programExercises { get; set; } = [];
     }
 }

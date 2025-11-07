@@ -8,24 +8,24 @@ namespace Backend.Models
     public class UserProgram
     {
         [Key]
-        public string Id { get; set; } = string.Empty; // UUID som string
+        public int id { get; set; }
 
         // Hvilken bruger har dette program i sit bibliotek?
         [Required]
         [ForeignKey("User")]
-        public string UserId { get; set; } = string.Empty;
-        public User? User { get; set; }
+        public int userId { get; set; }
+        public User? user { get; set; }
 
         // Hvilket program er det?
         [Required]
         [ForeignKey("Program")]
-        public string ProgramId { get; set; } = string.Empty;
-        public Program? Program { get; set; }
+        public int programId { get; set; }
+        public Program? program { get; set; }
 
-        // Hvornår tilføjede de det?
-        public DateTime AddedAt { get; set; }
+        // WHEN WAS THIS ADDED!?!?!? så man kan se hvornår folk tilføjer program
+        public DateTime addedAt { get; set; }
 
-        public bool IsDeleted { get; set; } = false; // Sæt standard til 'false'
+        public bool isDeleted { get; set; } = false; // Sæt standard til 'false'
     }
 }
 

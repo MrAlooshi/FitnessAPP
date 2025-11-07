@@ -8,24 +8,26 @@ namespace Backend.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<UserProgram> builder)
         {
+            builder.ToTable("UserPrograms");
+            
             // Indexes på foreign keys for bedre join performance
-            builder.HasIndex(up => up.UserId);
-            builder.HasIndex(up => up.ProgramId);
+            builder.HasIndex(up => up.userId);
+            builder.HasIndex(up => up.programId);
 
-            // Composite unique index (en bruger kan ikke have samme program to gange)
-            builder.HasIndex(up => new { up.UserId, up.ProgramId })
+            // Unique index (en bruger kan ikke have samme program to gange)
+            builder.HasIndex(up => new { up.userId, up.programId })
                 .IsUnique();
 
-            // Når en Program slettes, skal UserPrograms også slettes
-            builder.HasOne(up => up.Program)
-                .WithMany(p => p.UserPrograms)
-                .HasForeignKey(up => up.ProgramId)
+            // Når et Program slettes, skal UserPrograms også slettes
+            builder.HasOne(up => up.program)
+                .WithMany(p => p.userPrograms)
+                .HasForeignKey(up => up.programId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Når en User slettes, skal UserPrograms også slettes
-            builder.HasOne(up => up.User)
-                .WithMany(u => u.UserPrograms)
-                .HasForeignKey(up => up.UserId)
+            builder.HasOne(up => up.user)
+                .WithMany(u => u.userPrograms)
+                .HasForeignKey(up => up.userId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -5,25 +5,20 @@ namespace Backend.Models {
 
     public class Workout {
         [Key]
-        public string Id { get; set; } = string.Empty; 
-        /*Get i denne kontekst betyder at værdien kan læses
-        Set i denne kontekst betyder at værdien kan settes/skrives/divineintellect
-        vi tager id som uuid eller string, da vi har to databaser, en lokal lille
-        og stor "Main" database 
-        */
+        public int id { get; set; }
         
         [Required]
         [ForeignKey("User")]
-        public string UserId { get; set; } = string.Empty;
+        public int userId { get; set; }
         
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public bool IsDeleted { get; set; }
+        public DateTime createdAt { get; set; }
+        public DateTime updatedAt { get; set; }
+        public bool isDeleted { get; set; }
 
         // Navigation property
-        public User? User { get; set; }
+        public User? user { get; set; }
         
-        public List<WorkoutSet> WorkoutSets { get; set; } = [];
+        public List<WorkoutSet> workoutSets { get; set; } = [];
 
     }
 }

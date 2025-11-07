@@ -5,35 +5,34 @@ namespace Backend.Models
     public class User
     {
         [Key]
-        public string Id { get; set; } = string.Empty; // UUID som string
+        public int id { get; set; }
 
         
         [Required]
-        public string Username { get; set; } = string.Empty; // Unikt navn til visning
+        public string username { get; set; } = string.Empty; // Unikt navn til visning
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty; // Unik email til login
+        public string email { get; set; } = string.Empty; // Unik email til login
         
-        // Bemærk: Selve "password" gemmes ikke her.
+        // Selve password gemmes ikke her
         // Det håndteres af ASP.NET Identity 
 
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public bool IsDeleted { get; set; } // Til "soft delete"
+        public DateTime createdAt { get; set; }
+        public DateTime updatedAt { get; set; }
+        public bool isDeleted { get; set; } // Til "soft delete"
 
         // --- FORBINDELSER ---
         // En bruger kan have MANGE workouts
-        public List<Workout> Workouts { get; set; } = [];
+        public List<Workout> workouts { get; set; } = [];
 
         // En bruger kan have MANGE workout sets
-        // (Dette giver en direkte vej, selvom de også hænger på en Workout)
-        public List<WorkoutSet> WorkoutSets { get; set; } = [];
+        public List<WorkoutSet> workoutSets { get; set; } = [];
 
         // En bruger kan have oprettet MANGE programmer
-        public List<Program> CreatedPrograms { get; set; } = [];
+        public List<Program> createdPrograms { get; set; } = [];
 
         // En bruger kan have MANGE programmer i sit bibliotek (inkl. delte)
-        public List<UserProgram> UserPrograms { get; set; } = [];
+        public List<UserProgram> userPrograms { get; set; } = [];
     }
 }

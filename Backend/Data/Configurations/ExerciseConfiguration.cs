@@ -8,8 +8,10 @@ namespace Backend.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Exercise> builder)
         {
+            builder.ToTable("Exercises");
+            
             // Index på foreign key for bedre join performance
-            builder.HasIndex(e => e.MuscleGroupId);
+            builder.HasIndex(e => e.muscleGroupId);
         }
     }
 }

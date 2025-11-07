@@ -5,15 +5,15 @@ namespace Backend.Models
     public class BodyPart
     {
         [Key]
-        public string Id { get; set; } = string.Empty; // UUID som string
+        public int id { get; set; }
 
         [Required]
-        public string Name { get; set; } = string.Empty; // Fx "Chest", "Back", "Legs", "Arms", "Shoulders"
+        public string name { get; set; } = string.Empty; // Fx "Chest", "Back", "Legs", "Arms", "Shoulders"
 
-        // --- FORBINDELSE ---
-        // Et body part kan have MANGE muskelgrupper
+      
+        // En body part kan have MANGE muskelgrupper
         // Fx "Chest" -> "Upper Pecs", "Lower Pecs"
-        public List<MuscleGroup> MuscleGroups { get; set; } = [];
+        public List<MuscleGroup> muscleGroups { get; set; } = [];
     }
 }
 

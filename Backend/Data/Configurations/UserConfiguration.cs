@@ -8,8 +8,10 @@ namespace Backend.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
+            builder.ToTable("Users");
+            
             // Unique constraint på User.Email
-            builder.HasIndex(u => u.Email)
+            builder.HasIndex(u => u.email)
                 .IsUnique();
         }
     }

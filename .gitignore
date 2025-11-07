@@ -24,25 +24,25 @@ obj/
 *.sln.docstates
 
 ## Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
+debug/
+debugPublic/
+release/
+releases/
 x64/
 x86/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
+arm/
+arm64/
 bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
+bin/
+obj/
+log/
+logs/
 
 ## Configuration files with sensitive data
 appsettings.json
 appsettings.*.json
-!appsettings.Development.json.example
-!appsettings.Production.json.example
+!appsettings.development.json.example
+!appsettings.production.json.example
 
 ## Database
 *.db
@@ -56,7 +56,7 @@ appsettings.*.json
 
 ## OS
 .DS_Store
-Thumbs.db
+thumbs.db
 
 ## NuGet
 *.nupkg
@@ -67,8 +67,8 @@ Thumbs.db
 *.nuget.targets
 
 ## Test results
-[Tt]est[Rr]esult*/
-[Bb]uild[Ll]og.*
+testResult*/
+buildLog.*
 *.trx
 *.coverage
 *.coveragexml

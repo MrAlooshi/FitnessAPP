@@ -8,8 +8,10 @@ namespace Backend.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Models.Program> builder)
         {
+            builder.ToTable("Programs");
+            
             // Index på foreign key for bedre join performance
-            builder.HasIndex(p => p.CreatorUserId);
+            builder.HasIndex(p => p.creatorUserId);
         }
     }
 }

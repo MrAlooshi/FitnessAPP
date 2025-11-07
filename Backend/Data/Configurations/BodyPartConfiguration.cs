@@ -8,6 +8,8 @@ namespace Backend.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<BodyPart> builder)
         {
+            builder.ToTable("BodyParts");
+            
             // BodyPart er en simpel reference tabel, ingen specifik konfiguration nødvendig
         }
     }
