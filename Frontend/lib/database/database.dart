@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
             );
           } else if (snapshot.hasError) {
             return Scaffold(
-              body: Center(child: Text('Error: ${snapshot.error}')),
+              body: Center(child: TextFormField(initialValue: '${snapshot.error}',)),
             );
           } else {
             return const Scaffold(
@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
 
 
     final exerciseMuscles = await db.select(db.exerciseMuscles).get();
+    // print(exerciseMuscles.length);
     
     final muscles = await db.select(db.muscles).get();
     

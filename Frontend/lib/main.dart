@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:fitnessapp_frontend/constants/constants.dart';
-import 'package:fitnessapp_frontend/models/exercise.dart';
-import 'package:fitnessapp_frontend/models/muscle_group.dart';
+import 'package:fitnessapp_frontend/database/database.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,12 +15,68 @@ class MainApp extends StatefulWidget {
   State<MainApp> createState() => _MainAppState();
 }
 
+class ExerciseWithMuscles {
+  Exercise exercise;
+  List<Muscle> muscles;
+
+  ExerciseWithMuscles({required this.exercise, required this.muscles});
+}
+
 class _MainAppState extends State<MainApp> {
   final double defaultSpacing = 40;
-  List<MuscleGroup> selectedMuscleGroups = [];
+  List<Muscle> selectedMuscles = [];
   String selectedExerciseName = "Unnamed";
-  final List<Exercise> createdExercises = [];
   final TextEditingController _exerciseNameController = TextEditingController();
+  final Database db = Database();
+  late final List<Muscle> allMuscles;
+
+  late final List<ExerciseWithMuscles> allExerciseWithMuscles;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMuscles();
+    _loadExercises();
+  }
+
+  Future<void> _loadMuscles() async {
+    final muscles = await db.select(db.muscles).get();
+
+    setState(() {
+      allMuscles = muscles;
+    });
+  }
+
+  Future<void> _loadExercises() async {
+    // final exercises = await db.select(db.exercises).get();
+    final exerciseMuscleRelations = await db.select(db.exerciseMuscles).get();
+    final List<ExerciseWithMuscles> exercisesWithMuscles = [];
+    print("this happened real");
+    print(exerciseMuscleRelations.length);
+    for(ExerciseMuscle exerciseMuscle in exerciseMuscleRelations) {
+      
+      List<Exercise> exercises = await (
+        db.select(db.exercises)..where((obj) => obj.id.equals(exerciseMuscle.exerciseId))
+      ).get();
+
+      if(exercises.length > 1) {
+        throw Exception("Two exercises have the same id in the database.");
+      }
+
+      Exercise exercise = exercises.first;
+
+      List<Muscle> muscles = await(
+        db.select(db.muscles)..where((obj) => obj.id.equals(exerciseMuscle.muscleId))
+      ).get();
+
+      exercisesWithMuscles.add(ExerciseWithMuscles(exercise: exercise, muscles: muscles));
+    }
+
+    setState(() {
+      allExerciseWithMuscles = exercisesWithMuscles;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +87,10 @@ class _MainAppState extends State<MainApp> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: defaultSpacing,
-          children: [_buildAddMuscleGroup(), _buildViewExercises()],
+          children: [
+            _buildAddMuscleGroup(), 
+            _buildViewExercises(),
+          ]
         ),
       ),
     );
@@ -50,38 +110,45 @@ class _MainAppState extends State<MainApp> {
             },
           ),
         ),
-        for (MuscleGroup muscleGroup in Constants.muscleGroups)
+        for (Muscle muscle in allMuscles)
           Row(
             children: [
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    !selectedMuscleGroups.contains(muscleGroup)
-                        ? selectedMuscleGroups.add(muscleGroup)
-                        : selectedMuscleGroups.remove(muscleGroup);
+                    !selectedMuscles.contains(muscle)
+                        ? selectedMuscles.add(muscle)
+                        : selectedMuscles.remove(muscle);
                   });
                 },
-                child: Text(muscleGroup.name),
+                child: Text(muscle.name),
               ),
-              if (selectedMuscleGroups.contains(muscleGroup)) Icon(Icons.check),
+              if (selectedMuscles.contains(muscle)) Icon(Icons.check),
             ],
           ),
-        selectedMuscleGroups.isEmpty
+        selectedMuscles.isEmpty
             ? ElevatedButton(onPressed: null, child: Text("Add"))
             : ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   print(selectedExerciseName);
-                  print(selectedMuscleGroups);
+                  print(selectedMuscles);
+                  await db.addExercise(selectedExerciseName, selectedMuscles.map((element) => element.name).toList());
+
+                  allExerciseWithMuscles.add(ExerciseWithMuscles(exercise: Exercise(id: 100, name: selectedExerciseName), muscles: selectedMuscles));
+
                   setState(() {
-                    createdExercises.add(
-                      Exercise(
-                        name: selectedExerciseName,
-                        muscleGroups: selectedMuscleGroups,
-                      ),
-                    );
+                    List<ExerciseWithMuscles> exercisesWithMuscles = allExerciseWithMuscles.where(
+                      (obj) => obj.exercise.name == selectedExerciseName
+                    ).toList();
+
+                    if(exercisesWithMuscles.length > 1) {
+                      throw Exception("Found more exercises with the same name");
+                    }
+
+                    allExerciseWithMuscles.add(exercisesWithMuscles.first);
                     _exerciseNameController.text = "";
                     selectedExerciseName = "Unnamed";
-                    selectedMuscleGroups = [];
+                    selectedMuscles = [];
                   });
                 },
                 child: Text("Add"),
@@ -89,13 +156,13 @@ class _MainAppState extends State<MainApp> {
       ],
     );
   }
-
+// allExerciseWithMuscles
   Widget _buildViewExercises() {
-    String _getTrainedMuscleGroups(Exercise exercise) {
+    String _getTrainedMuscleGroups(ExerciseWithMuscles exerciseWithMuscles) {
       String muscles = "";
 
-      for (MuscleGroup muscleGroup in exercise.muscleGroups) {
-        muscles += muscleGroup.name.toLowerCase();
+      for (Muscle muscle in exerciseWithMuscles.muscles) {
+        muscles += muscle.name.toLowerCase();
         muscles += ", ";
       }
       return muscles;
@@ -106,13 +173,13 @@ class _MainAppState extends State<MainApp> {
       spacing: defaultSpacing / 2,
       children: [
         Text("View exercise:"),
-        for (Exercise exercise in createdExercises)
+        for (ExerciseWithMuscles exerciseWithMuscles in allExerciseWithMuscles)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: defaultSpacing / 2,
             children: [
               Text(
-                '${exercise.name} trains: ${_getTrainedMuscleGroups(exercise)}',
+                '${exerciseWithMuscles.exercise.name} trains: ${_getTrainedMuscleGroups(exerciseWithMuscles)}',
               ),
             ],
           ),
