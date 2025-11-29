@@ -136,6 +136,12 @@ class Database extends _$Database {
     return false;
   }
 
+  /// Deletes all rows in the tables Exercises and ExerciseMuscles.
+  Future<void> deleteAllExercises() async {
+    await delete(exercises).go();
+    await delete(exerciseMuscles).go();
+  }
+
 
   @override
   int get schemaVersion => 1;

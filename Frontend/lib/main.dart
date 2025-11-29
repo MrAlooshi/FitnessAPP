@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:fitnessapp_frontend/constants/constants.dart';
 import 'package:fitnessapp_frontend/database/database.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +34,7 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
+    // db.deleteAllExercises();
     _loadMuscles();
     _loadExercises();
   }
@@ -53,17 +53,16 @@ class _MainAppState extends State<MainApp> {
     final List<ExerciseWithMuscles> exercisesWithMuscles = [];
     print("this happened real");
     print(exerciseMuscleRelations.length);
-    for(ExerciseMuscle exerciseMuscle in exerciseMuscleRelations) {
+    for(ExerciseMuscle exerciseMuscle in exerciseMuscleRelations) { 
+      print("Vind");
       
-      List<Exercise> exercises = await (
+      Exercise? exercise = await (
         db.select(db.exercises)..where((obj) => obj.id.equals(exerciseMuscle.exerciseId))
-      ).get();
+      ).getSingleOrNull();
 
-      if(exercises.length > 1) {
-        throw Exception("Two exercises have the same id in the database.");
+      if(exercise == null) {
+        continue;
       }
-
-      Exercise exercise = exercises.first;
 
       List<Muscle> muscles = await(
         db.select(db.muscles)..where((obj) => obj.id.equals(exerciseMuscle.muscleId))
@@ -77,6 +76,7 @@ class _MainAppState extends State<MainApp> {
     });
   }
 
+  int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -84,14 +84,22 @@ class _MainAppState extends State<MainApp> {
       debugShowCheckedModeBanner: false,
       theme: Constants.darkTheme,
       home: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: defaultSpacing,
-          children: [
-            _buildAddMuscleGroup(), 
-            _buildViewExercises(),
+        bottomNavigationBar: NavigationBar(
+          onDestinationSelected: (int index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
+          selectedIndex: currentPageIndex,
+          destinations: [
+            NavigationDestination(icon: Icon(Icons.add), label: "Add exercises"),
+            NavigationDestination(icon: Icon(Icons.view_stream), label: "View exercises")
           ]
         ),
+        body: <Widget>[
+          _buildAddMuscleGroup(), 
+          _buildViewExercises(),
+        ][currentPageIndex]
       ),
     );
   }
@@ -133,19 +141,24 @@ class _MainAppState extends State<MainApp> {
                   print(selectedExerciseName);
                   print(selectedMuscles);
                   await db.addExercise(selectedExerciseName, selectedMuscles.map((element) => element.name).toList());
+                  final exercises = await db.select(db.exercises).get();
 
-                  allExerciseWithMuscles.add(ExerciseWithMuscles(exercise: Exercise(id: 100, name: selectedExerciseName), muscles: selectedMuscles));
+                  final addedExercises = exercises.where(
+                    (obj) => obj.name == selectedExerciseName
+                  );
+
+                  for(var exercise in addedExercises) {
+                    print(exercise.name + " " + exercise.id.toString());
+                  }
+
+                  if(addedExercises.length > 1) {
+                    throw Exception("Found ${addedExercises.length} exercises with the same name");
+                  }
+                  final addedExercise = addedExercises.first;
+
+                  allExerciseWithMuscles.add(ExerciseWithMuscles(exercise: addedExercise, muscles: selectedMuscles));
 
                   setState(() {
-                    List<ExerciseWithMuscles> exercisesWithMuscles = allExerciseWithMuscles.where(
-                      (obj) => obj.exercise.name == selectedExerciseName
-                    ).toList();
-
-                    if(exercisesWithMuscles.length > 1) {
-                      throw Exception("Found more exercises with the same name");
-                    }
-
-                    allExerciseWithMuscles.add(exercisesWithMuscles.first);
                     _exerciseNameController.text = "";
                     selectedExerciseName = "Unnamed";
                     selectedMuscles = [];
